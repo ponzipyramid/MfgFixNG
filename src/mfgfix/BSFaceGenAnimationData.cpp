@@ -63,7 +63,7 @@ namespace MfgFix
 			return;
 		}
 
-		REL::Relocation<bool(void*, float, float*)> sub_1FCD10{ REL::ID(16267) };
+		REL::Relocation<bool(void*, float, float*)> sub_1FCD10{ RELOCATION_ID(16024, 16267) };
 
 		modifier1.timer += a_timeDelta;
 		sub_1FCD10(dialogueData->unk28, modifier1.timer, modifier1.values);
@@ -75,7 +75,7 @@ namespace MfgFix
 			return;
 		}
 
-		REL::Relocation<bool(void*, float, float*)> sub_1FC9B0{ REL::ID(16266) };
+		REL::Relocation<bool(void*, float, float*)> sub_1FC9B0{ RELOCATION_ID(16023, 16266) };
 
 		phoneme1.timer += a_timeDelta;
 		sub_1FC9B0(dialogueData->unk28, phoneme1.timer, phoneme1.values);
@@ -93,7 +93,7 @@ namespace MfgFix
 			return;
 		}
 
-		REL::Relocation<void(void*)> ReleaseDialogueData{ REL::ID(16318) };
+		REL::Relocation<void(void*)> ReleaseDialogueData{ RELOCATION_ID(16077, 16318) };
 
 		ReleaseDialogueData(dialogueData);
 

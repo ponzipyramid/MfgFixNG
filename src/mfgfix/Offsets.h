@@ -6,32 +6,32 @@ namespace MfgFix::Offsets
 
 	namespace
 	{
-		static constexpr REL::ID ModifyFaceGenCommand(static_cast<std::uint64_t>(23017));
-		static constexpr REL::ID GetExpressionName(static_cast<std::uint64_t>(27007));
-		static constexpr REL::ID GetModifierName(static_cast<std::uint64_t>(27008));
-		static constexpr REL::ID GetPhonemeName(static_cast<std::uint64_t>(27009));
-		static constexpr REL::ID GetCustomName(static_cast<std::uint64_t>(27010));
+		static constexpr REL::RelocationID ModifyFaceGenCommand(22542, 23017);
+		static constexpr REL::RelocationID GetExpressionName(26428, 27007);
+		static constexpr REL::RelocationID GetModifierName(26429, 27008);
+		static constexpr REL::RelocationID GetPhonemeName(26430, 27009);
+		static constexpr REL::RelocationID GetCustomName(26431, 27010);
 	}
 
 	namespace BSFaceGenAnimationData
 	{
-		static constexpr REL::ID KeyframesUpdate(static_cast<std::uint64_t>(26598));
-		static constexpr REL::ID SetExpressionOverride(static_cast<std::uint64_t>(26594));
-		static constexpr REL::ID sub_3DB770(static_cast<std::uint64_t>(26593));
-		static constexpr REL::ID Reset(static_cast<std::uint64_t>(26586));
+		static constexpr REL::RelocationID KeyframesUpdate(25983, 26598);
+		static constexpr REL::RelocationID SetExpressionOverride(25980, 26594);
+		static constexpr REL::RelocationID sub_3DB770(25979, 26593);
+		static constexpr REL::RelocationID Reset(25977, 26586);
 	}
 
 	namespace BSFaceGenNiNode
 	{
-		static constexpr REL::ID sub_3F1800(static_cast<std::uint64_t>(26998));
-		static constexpr REL::ID sub_3F0C90(static_cast<std::uint64_t>(26988));
+		static constexpr REL::RelocationID sub_3F1800(26417, 26998);
+		static constexpr REL::RelocationID sub_3F0C90(26407, 26988);
 	}
 
 	namespace Papyrus
 	{
 		namespace Actor
 		{
-			static constexpr REL::ID SetExpressionOverride(static_cast<std::uint64_t>(54748));
+			static constexpr REL::RelocationID SetExpressionOverride(53926, 54748);
 		}
 	}
 }
