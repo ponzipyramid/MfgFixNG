@@ -105,4 +105,8 @@ using json = nlohmann::json;
 
 #include "SimpleMath.h"
 
+#include <detours/detours.h>
+
 using uint = uint32_t;
+
+#define DLLEXPORT __declspec(dllexport)

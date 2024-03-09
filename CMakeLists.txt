@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.21)
 
 project(
-	SamplePlugin
-	VERSION 0.7.5
+	mfgfix
+	VERSION 0.1.0
 	LANGUAGES CXX
 )
 
@@ -31,6 +31,7 @@ find_package(magic_enum CONFIG REQUIRED)
 find_package(xbyak CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_path(CLIB_UTIL_INCLUDE_DIRS "ClibUtil/utils.hpp")
+find_library(Detours_LIBRARIES NAMES detours.lib)
 
 target_include_directories(
 	${PROJECT_NAME}
@@ -44,6 +45,7 @@ target_link_libraries(
 	magic_enum::magic_enum
 	xbyak::xbyak
 	nlohmann_json::nlohmann_json
+	${Detours_LIBRARIES}
 )
 
 # https://gitlab.kitware.com/cmake/cmake/-/issues/24922#note_1371990
