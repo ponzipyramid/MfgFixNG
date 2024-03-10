@@ -1,6 +1,6 @@
-# CommonLibSSE-NG Plugin Template
+# MfgFixNG
 
-Template for building SKSE plugins using the NG branch of CommonLibVR.  
+Version independent implementation of [MfgFix by Andrelo1](https://github.com/andrelo1/mfgfix) based on [antpillager's transition changes](https://github.com/antpillager/mfgfix). 
 
 ## Requirements
 
@@ -33,7 +33,7 @@ Template for building SKSE plugins using the NG branch of CommonLibVR.
 Open terminal (e.g., PowerShell) and run the following commands:
 
 ```
-git clone https://github.com/ponzipyramid/CommonLibSSE-NG-Template.git --recursive
+git clone https://github.com/ponzipyramid/MfgFixNG.git --recursive
 cd CommonLibSSE-NG-Template
 .\BuildRelease.bat
 ```
