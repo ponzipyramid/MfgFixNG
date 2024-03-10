@@ -83,21 +83,26 @@ namespace MfgFix
 	
 	void BSFaceGenAnimationData::CheckAndReleaseDialogueData()
 	{
+		logger::info("CheckAndReleaseDialogueData: 1");
 		if (!dialogueData || (((dialogueData->refCount & 0x70000000) + 0xD0000000) & 0xEFFFFFFF) != 0) {
 			return;
 		}
 
+		logger::info("CheckAndReleaseDialogueData: 2");
 		auto timer = (dialogueData->unk28->unk0 + (dialogueData->unk28->unk4 < 0 ? -dialogueData->unk28->unk4 : 0)) * 0.033f + 0.2f;
 
 		if (phoneme1.timer <= timer) {
 			return;
 		}
 
+		logger::info("CheckAndReleaseDialogueData: 3");
 		REL::Relocation<void(void*)> ReleaseDialogueData{ RELOCATION_ID(16077, 16318) };
 
 		ReleaseDialogueData(dialogueData);
+		logger::info("CheckAndReleaseDialogueData: 4");
 
 		dialogueData = nullptr;
+		logger::info("CheckAndReleaseDialogueData: 5");
 	}
 
 	void BSFaceGenAnimationData::EyesBlinkingUpdate(float a_timeDelta)
