@@ -1,4 +1,5 @@
 build/
-dist/
 .vs*/
 CMakeUserPresets.json
+skyrimse.ppj
+SkyrimSE.code-workspace
