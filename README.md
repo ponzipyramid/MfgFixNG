@@ -1,6 +1,6 @@
-# MfgFixNG
+# Dynamic Expression Replacer
 
-Version independent implementation of [MfgFix by Andrelo1](https://github.com/andrelo1/mfgfix) based on [antpillager's transition changes](https://github.com/antpillager/mfgfix). 
+Version independent implementation of [MfgFix by andrelo1](https://github.com/andrelo1/mfgfix) based on [antpillager's animation changes](https://github.com/antpillager/mfgfix). 
 
 ## Requirements
 

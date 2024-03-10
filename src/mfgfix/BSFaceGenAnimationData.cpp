@@ -386,8 +386,10 @@ namespace MfgFix
 		DetourUpdateThread(GetCurrentThread());
 		DetourAttach(reinterpret_cast<PVOID*>(&KeyframesUpdateAddr), reinterpret_cast<PVOID&>(KeyframesUpdateHookAddr));
 
-		if (DetourTransactionCommit() != NO_ERROR) {
-			spdlog::error("failed to attach detour");
+		if (DetourTransactionCommit() == NO_ERROR) {
+			logger::error("succesfully attached detour");
+		} else {
+			logger::error("failed to attach detour");
 		}
 
 		// remove eyes update from UpdateDownwardPass, it was moved to KeyframesUpdate

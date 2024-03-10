@@ -175,8 +175,10 @@ namespace MfgFix::ConsoleCommands
 		DetourUpdateThread(GetCurrentThread());
 		DetourAttach(reinterpret_cast<PVOID*>(&ModifyFaceGenCommandAddr), reinterpret_cast<PVOID>(ModifyFaceGenCommandHook));
 
-		if (DetourTransactionCommit() != NO_ERROR) {
-			spdlog::error("failed to attach detour");
+		if (DetourTransactionCommit() == NO_ERROR) {
+			logger::info("successfully attached detour");
+		} else {
+			logger::error("failed to attach detour");
 		}
 	}
 
