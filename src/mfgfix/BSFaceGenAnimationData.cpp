@@ -27,8 +27,11 @@ namespace MfgFix
 	}
 
 	typedef bool(WINAPI* KeyframesUpdate)(BSFaceGenAnimationData*, float, bool);
+	typedef int64_t(WINAPI* ReleaseDialogueType)(int64_t, int64_t);
 
 	inline KeyframesUpdate _KeyframesUpdate;
+	
+	inline ReleaseDialogueType _ReleaseDialogue;
 
 	void BSFaceGenAnimationData::SetExpressionOverride(std::uint32_t a_idx, float a_value)
 	{
@@ -278,8 +281,10 @@ namespace MfgFix
 
 	bool BSFaceGenAnimationData::KeyframesUpdateHook(float a_timeDelta, bool a_eyes)
 	{
-		logger::info("entering KeyframesUpdateHook");
-		return _KeyframesUpdate(this, a_timeDelta, a_eyes);
+		logger::info("KeyframesUpdateHook: Start {}", reinterpret_cast<std::uintptr_t>(dialogueData));
+		auto val = _KeyframesUpdate(this, a_timeDelta, a_eyes);
+		logger::info("KeyframesUpdateHook: End {}", reinterpret_cast<std::uintptr_t>(dialogueData));
+		return val;
 
 
 		RE::BSSpinLockGuard locker(lock);
@@ -394,10 +399,13 @@ namespace MfgFix
 		return unk217;
 	}
 
-	int64_t BSFaceGenAnimationData::ReleaseExpressionData(int64_t a_1, int64_t a_2)
+	int64_t ReleaseDialogueHook(int64_t a_1, int64_t a_2) 
 	{
-		logger::info("entering ReleaseExpressionData {} {}", a_1, a_2);
-		return _ReleaseExpressionData(a_1, a_2);
+		logger::info("ReleaseDialogue: Start {} {}", a_1, a_2);
+		auto result = _ReleaseDialogue(a_1, a_2);
+		logger::info("ReleaseDialogue: End {} {}", a_1, a_2);
+
+		return result;
 	}
 
 	void BSFaceGenAnimationData::Init()
@@ -417,13 +425,14 @@ namespace MfgFix
 			logger::error("failed to attach detour");
 		}
 
-		SKSE::AllocTrampoline(static_cast<size_t>(1) << 7);
-		auto& trampoline = SKSE::GetTrampoline();
+		const uintptr_t ReleaseDialogueAddr = REL::ID{ 16077 }.address();
+		_ReleaseDialogue = (ReleaseDialogueType)ReleaseDialogueAddr;
 
-		if (REL::Module::IsSE()) {
-			REL::Relocation<std::uintptr_t> relD{ Offsets::BSFaceGenAnimationData::KeyframesUpdate, REL::Offset(0x165) };
-			_ReleaseExpressionData = trampoline.write_call<5>(relD.address(), ReleaseExpressionData);
-		}
+		auto ReleaseDialogueHookAddr = &ReleaseDialogueHook;
+
+		DetourTransactionBegin();
+		DetourUpdateThread(GetCurrentThread());
+		DetourAttach(&(PVOID&)(_ReleaseDialogue), reinterpret_cast<PVOID&>(ReleaseDialogueHookAddr));
 		
 		// remove eyes update from UpdateDownwardPass, it was moved to KeyframesUpdate
 		// same offset in 1.5 :)
