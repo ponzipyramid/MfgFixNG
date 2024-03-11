@@ -23,7 +23,12 @@ namespace MfgFix
 		{
 			return a_degrees * pi_180;
 		}
+		
 	}
+
+	typedef bool(WINAPI* KeyframesUpdate)(BSFaceGenAnimationData*, float, bool);
+
+	inline KeyframesUpdate _KeyframesUpdate;
 
 	void BSFaceGenAnimationData::SetExpressionOverride(std::uint32_t a_idx, float a_value)
 	{
@@ -271,11 +276,15 @@ namespace MfgFix
 	{	
 	}
 
-	bool BSFaceGenAnimationData::KeyframesUpdateHook(float a_timeDelta, bool)
+	bool BSFaceGenAnimationData::KeyframesUpdateHook(float a_timeDelta, bool a_eyes)
 	{
+		logger::info("entering KeyframesUpdateHook");
+		return _KeyframesUpdate(this, a_timeDelta, a_eyes);
+
+
 		RE::BSSpinLockGuard locker(lock);
 
-		auto animationStep = a_timeDelta / 0.75f;//0.75f - animation speed
+		auto animationStep = a_timeDelta / 0.75f; //0.75f - animation speed
 
 		auto animMerge = [animationStep](Keyframe& dialogue, Keyframe& modifier, Keyframe& result) {
 			auto count = std::min(std::max(dialogue.count, modifier.count), result.count);
@@ -385,14 +394,22 @@ namespace MfgFix
 		return unk217;
 	}
 
+	int64_t BSFaceGenAnimationData::ReleaseExpressionData(int64_t a_1, int64_t a_2)
+	{
+		logger::info("entering ReleaseExpressionData {} {}", a_1, a_2);
+		return _ReleaseExpressionData(a_1, a_2);
+	}
+
 	void BSFaceGenAnimationData::Init()
 	{
-		auto KeyframesUpdateAddr = Offsets::BSFaceGenAnimationData::KeyframesUpdate.address();
+		const uintptr_t KeyframesUpdateAddr = Offsets::BSFaceGenAnimationData::KeyframesUpdate.address();
+		_KeyframesUpdate = (KeyframesUpdate)KeyframesUpdateAddr;
+
 		auto KeyframesUpdateHookAddr = &KeyframesUpdateHook;
 
 		DetourTransactionBegin();
 		DetourUpdateThread(GetCurrentThread());
-		DetourAttach(reinterpret_cast<PVOID*>(&KeyframesUpdateAddr), reinterpret_cast<PVOID&>(KeyframesUpdateHookAddr));
+		DetourAttach(&(PVOID&)(_KeyframesUpdate), reinterpret_cast<PVOID&>(KeyframesUpdateHookAddr));
 
 		if (DetourTransactionCommit() == NO_ERROR) {
 			logger::error("succesfully attached detour");
@@ -400,7 +417,16 @@ namespace MfgFix
 			logger::error("failed to attach detour");
 		}
 
+		SKSE::AllocTrampoline(static_cast<size_t>(1) << 7);
+		auto& trampoline = SKSE::GetTrampoline();
+
+		if (REL::Module::IsSE()) {
+			REL::Relocation<std::uintptr_t> relD{ Offsets::BSFaceGenAnimationData::KeyframesUpdate, REL::Offset(0x165) };
+			_ReleaseExpressionData = trampoline.write_call<5>(relD.address(), ReleaseExpressionData);
+		}
+		
 		// remove eyes update from UpdateDownwardPass, it was moved to KeyframesUpdate
-		REL::safe_write(Offsets::BSFaceGenNiNode::sub_3F1800.address() + 0x0139, static_cast<std::uint16_t>(0x47EB));
+		// same offset in 1.5 :)
+		//REL::safe_write(Offsets::BSFaceGenNiNode::sub_3F1800.address() + 0x0139, static_cast<std::uint16_t>(0x47EB));
 	}
 }

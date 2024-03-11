@@ -112,6 +112,10 @@ namespace MfgFix
 		void			EyesDirectionUpdate(float a_timeDelta);
 		bool			KeyframesUpdateHook(float a_timeDelta, bool a_updateBlinking);
 
+	
+		static int64_t ReleaseExpressionData(int64_t a_1, int64_t a_2);
+		static inline REL::Relocation<decltype(ReleaseExpressionData)> _ReleaseExpressionData;
+
 		static void		Init();
 	};
 
