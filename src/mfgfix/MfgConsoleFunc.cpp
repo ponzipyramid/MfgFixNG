@@ -15,15 +15,6 @@ namespace MfgFix::MfgConsoleFunc
 		};
 	}
 
-	inline BSFaceGenAnimationData* GetAnimData(RE::Actor* a_actor)
-	{
-		if (!a_actor->Is3DLoaded())
-			return nullptr;
-
-		auto data = a_actor->GetFaceGenAnimationData();
-		return data ? reinterpret_cast<BSFaceGenAnimationData*>(data) : nullptr;
-	}
-
 	inline bool SetPhoneme(BSFaceGenAnimationData* animData, std::uint32_t a_id, std::int32_t a_value)
 	{
 		if (!animData) {
@@ -166,7 +157,12 @@ namespace MfgFix::MfgConsoleFunc
 
 	inline bool ResetMFGSmooth(RE::StaticFunctionTag*, RE::Actor* a_actor, int a_mode)
 	{
-		auto animData = GetAnimData(a_actor);
+		if (!a_actor) {
+			logger::error("No actor selected");
+			return false;
+		}
+	
+		auto animData = reinterpret_cast<BSFaceGenAnimationData*>(a_actor->GetFaceGenAnimationData());
 
 		if (!animData) {
 			logger::error("No animdata found");
@@ -213,13 +209,12 @@ namespace MfgFix::MfgConsoleFunc
 				break;
 			}
 		}
-
 		return true;
 	}
 
 	inline bool ApplyExpressionPreset(RE::StaticFunctionTag*, RE::Actor* a_actor, std::vector<float> a_expression, bool a_openMouth, int exprPower, float exprStrModifier, float modStrModifier, float phStrModifier)
 	{
-		if (a_actor == nullptr) {
+		if (!a_actor) {
 			logger::error("No actor selected");
 			return false;
 		}
@@ -228,7 +223,8 @@ namespace MfgFix::MfgConsoleFunc
 			logger::error("Expression is of incorrect size - returning");
 			return false;
 		}
-		auto animData = GetAnimData(a_actor);
+
+		auto animData = reinterpret_cast<BSFaceGenAnimationData*>(a_actor->GetFaceGenAnimationData());
 
 		if (!animData) {
 			logger::error("No animdata found");
