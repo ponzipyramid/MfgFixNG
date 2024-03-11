@@ -97,12 +97,10 @@ namespace MfgFix
 			REL::Relocation<void(void*)> ReleaseDialogueData{ REL::ID(16318) };
 			ReleaseDialogueData(dialogueData);
 		} else {
-			REL::Relocation<int64_t(void*, void*)> ReleaseDialogueData{ REL::ID(16077) };
+			REL::Relocation<void(void*, void*)> ReleaseDialogueData{ REL::ID(16077) };
+			REL::ID loc{ 514495 };
 
-			REL::ID loc{ 514495 }; //2EC4840
-			// address is right, args are not 
-			// we might need to modify the original func and call that instead
-			//ReleaseDialogueData((void*)(loc.address() + 0xD0), dialogueData);
+			ReleaseDialogueData((void*)(loc.address() + 0x100), dialogueData);
 		}
 
 		dialogueData = nullptr;
