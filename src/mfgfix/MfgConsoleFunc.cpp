@@ -1,5 +1,6 @@
 #include "MfgConsoleFunc.h"
 #include "BSFaceGenAnimationData.h"
+#include "ActorManager.h"
 
 namespace MfgFix::MfgConsoleFunc
 {
@@ -81,7 +82,7 @@ namespace MfgFix::MfgConsoleFunc
 		return expression;
 	}
 
-	bool SetPhonemeModifier(RE::StaticFunctionTag*, RE::Actor* a_actor, std::int32_t a_mode, std::uint32_t a_id, std::int32_t a_value)
+	bool SetPhonemeModifierSmooth(RE::StaticFunctionTag*, RE::Actor* a_actor, std::int32_t a_mode, std::uint32_t a_id, std::int32_t a_value, float a_speed)
 	{
 		if (!a_actor) {
 			return false;
@@ -92,6 +93,8 @@ namespace MfgFix::MfgConsoleFunc
 		if (!animData) {
 			return false;
 		}
+
+		ActorManager::SetSpeed(a_actor, a_speed);
 
 		RE::BSSpinLockGuard locker(animData->lock);
 
@@ -212,7 +215,7 @@ namespace MfgFix::MfgConsoleFunc
 		return true;
 	}
 
-	inline bool ApplyExpressionPreset(RE::StaticFunctionTag*, RE::Actor* a_actor, std::vector<float> a_expression, bool a_openMouth, int exprPower, float exprStrModifier, float modStrModifier, float phStrModifier)
+	inline bool ApplyExpressionPreset(RE::StaticFunctionTag*, RE::Actor* a_actor, std::vector<float> a_expression, bool a_openMouth, int exprPower, float exprStrModifier, float modStrModifier, float phStrModifier, float a_speed)
 	{
 		if (!a_actor) {
 			logger::error("No actor selected");
@@ -231,6 +234,7 @@ namespace MfgFix::MfgConsoleFunc
 			return false;
 		}
 
+		ActorManager::SetSpeed(a_actor, a_speed);
 		RE::BSSpinLockGuard locker(animData->lock);
 
 		int i = 0;
@@ -270,10 +274,12 @@ namespace MfgFix::MfgConsoleFunc
 		return true;
 	}
 
+
+
 	void Register()
 	{
 		SKSE::GetPapyrusInterface()->Register([](RE::BSScript::IVirtualMachine* a_vm) {
-			a_vm->RegisterFunction("SetPhonemeModifier", "MfgConsoleFunc", SetPhonemeModifier);
+			a_vm->RegisterFunction("SetPhonemeModifierSmooth", "MfgConsoleFunc", SetPhonemeModifierSmooth);
 			a_vm->RegisterFunction("GetPhonemeModifier", "MfgConsoleFunc", GetPhonemeModifier);
 			a_vm->RegisterFunction("ResetMFGSmooth", "MfgConsoleFunc", ResetMFGSmooth);
 			a_vm->RegisterFunction("ApplyExpressionPreset", "MfgConsoleFunc", ApplyExpressionPreset);

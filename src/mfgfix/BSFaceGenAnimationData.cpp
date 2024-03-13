@@ -1,7 +1,9 @@
+#include <float.h>
+
 #include "BSFaceGenAnimationData.h"
 #include "Offsets.h"
 #include "Settings.h"
-#include <float.h>
+#include "ActorManager.h"
 
 namespace MfgFix
 {
@@ -273,7 +275,11 @@ namespace MfgFix
 	{
 		RE::BSSpinLockGuard locker(lock);
 
-		auto animationStep = a_timeDelta / 0.75f;//0.75f - animation speed
+		auto speed = ActorManager::GetSpeed(this);
+
+		logger::info("KeyframesUpdateHook: using speed {}", speed);
+
+		auto animationStep = a_timeDelta / speed;
 
 		auto animMerge = [animationStep](Keyframe& dialogue, Keyframe& modifier, Keyframe& result) {
 			auto count = std::min(std::max(dialogue.count, modifier.count), result.count);

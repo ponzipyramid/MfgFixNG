@@ -26,23 +26,23 @@ int function GetPhonemeModifier(Actor act, int mode, int id) native global
 ;        =Return value=
 ;Return true in case that expression was successfully applied
 ; Apply expression array [31] to actor akActor
-bool Function ApplyExpressionPreset(Actor akActor, float[] aaExpression, bool abOpenMouth, int exprPower, float exprStrModifier, float modStrModifier, float phStrModifier, float speed)  native global
+bool Function ApplyExpressionPreset(Actor akActor, float[] aaExpression, bool abOpenMouth, int exprPower, float exprStrModifier, float modStrModifier, float phStrModifier, float speed = 0.7)  native global
 ;aiMode -1 for reset all, 0 for phonemes, 1 for modifiers
-bool function ResetMFGSmooth(Actor akActor, int aiMode, float speed) native global
+bool function ResetMFGSmooth(Actor akActor, int aiMode, float speed = 0.7) native global
 ;same as base + speed (transition modifier)
-bool function SetPhonemeModifierSmooth(Actor act, int mode, int id, int value, float speed) native global
+bool function SetPhonemeModifierSmooth(Actor act, int mode, int id, int value, float speed = 0.7) native global
 
 ; wrapper functions
 
 ; set phoneme/modifier, same as console.
-bool function SetPhoneme(Actor act, int id, int value, float speed = 1.0) global
-	return SetPhonemeModifierSmooth(act, 0, id, value, speed)
+bool function SetPhoneme(Actor act, int id, int value) global
+	return SetPhonemeModifierSmooth(act, 0, id, value, 0.0)
 endfunction
-bool function SetModifier(Actor act, int id, int value, float speed = 1.0) global
-	return SetPhonemeModifierSmooth(act, 1, id, value, speed)
+bool function SetModifier(Actor act, int id, int value) global
+	return SetPhonemeModifierSmooth(act, 1, id, value, 0.0)
 endfunction
-bool function SetExpression(Actor act, int mood, int value, float speed = 1.0) global
-	return SetPhonemeModifierSmooth(act, 2, mood, value, speed)
+bool function SetExpression(Actor act, int mood, int value) global
+	return SetPhonemeModifierSmooth(act, 2, mood, value, 0.0)
 endfunction
 ; reset phoneme/modifier. this does not reset expression.
 bool function ResetPhonemeModifier(Actor act) global
