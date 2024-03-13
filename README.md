@@ -1,4 +1,4 @@
-# Dynamic Expression Replacer
+# MfgFix NG
 
 Version independent implementation of [MfgFix by andrelo1](https://github.com/andrelo1/mfgfix) based on [antpillager's animation changes](https://github.com/antpillager/mfgfix). 
 
