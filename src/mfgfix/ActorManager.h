@@ -12,11 +12,18 @@ namespace MfgFix
 			if (!a_actor)
 				return;
 
-			if (auto animData = a_actor->GetFaceGenAnimationData()) {
-				auto formId = a_actor->GetFormID();
 
-				_mapping[reinterpret_cast<uintptr_t>(animData)] = formId;
-				_speed[formId] = a_speed;
+			if (auto animData = a_actor->GetFaceGenAnimationData()) {
+				auto id = reinterpret_cast<uintptr_t>(animData);
+				auto formId = a_actor->GetFormID();
+				
+				if (a_speed == 0.0) {
+					_mapping.erase(id);
+					_speed.erase(formId);
+				} else {
+					_mapping[id] = formId;
+					_speed[formId] = a_speed;
+				}
 			}
 		}
 
