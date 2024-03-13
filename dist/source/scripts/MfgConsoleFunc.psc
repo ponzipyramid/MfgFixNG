@@ -31,6 +31,7 @@ bool Function ApplyExpressionPreset(Actor akActor, float[] aaExpression, bool ab
 bool function ResetMFGSmooth(Actor akActor, int aiMode, float speed = 0.7) native global
 ;same as base + speed (transition modifier)
 bool function SetPhonemeModifierSmooth(Actor act, int mode, int id, int value, float speed = 0.7) native global
+bool function SetPhonemeModifier(Actor act, int mode, int id, int value) native global
 
 ; wrapper functions
 

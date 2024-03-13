@@ -122,6 +122,11 @@ namespace MfgFix::MfgConsoleFunc
 		return false;
 	}
 
+	bool SetPhonemeModifier(RE::StaticFunctionTag* a_tag, RE::Actor* a_actor, std::int32_t a_mode, std::uint32_t a_id, std::int32_t a_value)
+	{
+		return SetPhonemeModifierSmooth(a_tag, a_actor, a_mode, a_id, a_value, 0.f);
+	}
+
 	std::int32_t GetPhonemeModifier(RE::StaticFunctionTag*, RE::Actor* a_actor, std::int32_t a_mode, std::uint32_t a_id)
 	{
 		if (!a_actor) {
@@ -280,6 +285,7 @@ namespace MfgFix::MfgConsoleFunc
 	{
 		SKSE::GetPapyrusInterface()->Register([](RE::BSScript::IVirtualMachine* a_vm) {
 			a_vm->RegisterFunction("SetPhonemeModifierSmooth", "MfgConsoleFunc", SetPhonemeModifierSmooth);
+			a_vm->RegisterFunction("SetPhonemeModifier", "MfgConsoleFunc", SetPhonemeModifier);
 			a_vm->RegisterFunction("GetPhonemeModifier", "MfgConsoleFunc", GetPhonemeModifier);
 			a_vm->RegisterFunction("ResetMFGSmooth", "MfgConsoleFunc", ResetMFGSmooth);
 			a_vm->RegisterFunction("ApplyExpressionPreset", "MfgConsoleFunc", ApplyExpressionPreset);
