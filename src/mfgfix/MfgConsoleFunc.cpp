@@ -163,7 +163,7 @@ namespace MfgFix::MfgConsoleFunc
 		return -1;
 	}
 
-	inline bool ResetMFGSmooth(RE::StaticFunctionTag*, RE::Actor* a_actor, int a_mode)
+	inline bool ResetMFGSmooth(RE::StaticFunctionTag*, RE::Actor* a_actor, int a_mode, float a_speed)
 	{
 		if (!a_actor) {
 			logger::error("No actor selected");
@@ -176,6 +176,7 @@ namespace MfgFix::MfgConsoleFunc
 			logger::error("No animdata found");
 			return false;
 		}
+		ActorManager::SetSpeed(a_actor, a_speed);
 
 		RE::BSSpinLockGuard locker(animData->lock);
 
@@ -279,16 +280,33 @@ namespace MfgFix::MfgConsoleFunc
 		return true;
 	}
 
+	RE::Actor* GetPlayerSpeechTarget(RE::StaticFunctionTag*)
+	{
+		SKSE::log::info("GetPlayerSpeechTarget");
+
+		if (auto speakerObjPtr = RE::MenuTopicManager::GetSingleton()->speaker) {
+			if (auto speakerPtr = speakerObjPtr.get()) {
+				if (auto speaker = speakerPtr.get()) {
+					return speaker->As<RE::Actor>();
+				}
+			}
+		}
+
+		return nullptr;
+	}
+
 
 
 	void Register()
 	{
 		SKSE::GetPapyrusInterface()->Register([](RE::BSScript::IVirtualMachine* a_vm) {
-			a_vm->RegisterFunction("SetPhonemeModifierSmooth", "MfgConsoleFunc", SetPhonemeModifierSmooth);
+			a_vm->RegisterFunction("SetPhonemeModifierSmooth", "MfgConsoleFuncExt", SetPhonemeModifierSmooth);
 			a_vm->RegisterFunction("SetPhonemeModifier", "MfgConsoleFunc", SetPhonemeModifier);
 			a_vm->RegisterFunction("GetPhonemeModifier", "MfgConsoleFunc", GetPhonemeModifier);
-			a_vm->RegisterFunction("ResetMFGSmooth", "MfgConsoleFunc", ResetMFGSmooth);
-			a_vm->RegisterFunction("ApplyExpressionPreset", "MfgConsoleFunc", ApplyExpressionPreset);
+			a_vm->RegisterFunction("ResetMFGSmooth", "MfgConsoleFuncExt", ResetMFGSmooth);
+			a_vm->RegisterFunction("ApplyExpressionPreset", "MfgConsoleFuncExt", ApplyExpressionPreset);
+			a_vm->RegisterFunction("GetPlayerSpeechTarget", "MfgConsoleFuncExt", GetPlayerSpeechTarget);
+
 			return true;
 		});
 	}
