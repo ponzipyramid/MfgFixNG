@@ -399,7 +399,7 @@ namespace MfgFix
 		DetourAttach(reinterpret_cast<PVOID*>(&KeyframesUpdateAddr), reinterpret_cast<PVOID&>(KeyframesUpdateHookAddr));
 
 		if (DetourTransactionCommit() == NO_ERROR) {
-			logger::error("succesfully attached detour");
+			logger::info("succesfully attached detour");
 		} else {
 			logger::error("failed to attach detour");
 		}
