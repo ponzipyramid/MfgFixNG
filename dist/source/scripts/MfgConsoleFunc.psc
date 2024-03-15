@@ -29,7 +29,7 @@ endfunction
 
 ; return expression value which is enabled. (enabled only one at a time.)
 int function GetExpressionValue(Actor act) global
-	return GetPhonemeModifier(act, 2, 0)
+	return GetPhonemeModifier(act, 2, GetExpressionID(act))
 endfunction
 ; return expression ID which is enabled.
 int function GetExpressionID(Actor act) global
