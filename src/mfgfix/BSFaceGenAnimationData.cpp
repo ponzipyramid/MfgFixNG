@@ -276,9 +276,6 @@ namespace MfgFix
 		RE::BSSpinLockGuard locker(lock);
 
 		auto speed = ActorManager::GetSpeed(this);
-
-		logger::info("KeyframesUpdateHook: using speed {}", speed);
-
 		auto animationStep = a_timeDelta / speed;
 
 		auto animMerge = [animationStep](Keyframe& dialogue, Keyframe& modifier, Keyframe& result) {

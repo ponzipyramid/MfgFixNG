@@ -12,7 +12,6 @@ namespace MfgFix
 			if (!a_actor)
 				return;
 
-
 			if (auto animData = a_actor->GetFaceGenAnimationData()) {
 				auto id = reinterpret_cast<uintptr_t>(animData);
 				auto formId = a_actor->GetFormID();
@@ -31,13 +30,11 @@ namespace MfgFix
 		{
 			auto id = reinterpret_cast<uintptr_t>(a_data);
 			if (_mapping.count(id)) {
-				logger::info("GetSpeed: found mapping using id {}", id);
 				auto formId = _mapping[id];
 				if (_speed.count(formId)) {
 					return _speed[formId];
 				}
 			}
-			logger::info("GetSpeed: giving default for {}", id);
 
 			return DEFAULT_SPEED;
 		}
