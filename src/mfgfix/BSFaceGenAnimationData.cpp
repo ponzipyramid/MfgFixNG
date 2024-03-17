@@ -108,7 +108,7 @@ namespace MfgFix
 		dialogueData = nullptr;
 	}
 
-	void BSFaceGenAnimationData::EyesBlinkingUpdate(float a_timeDelta)
+	void BSFaceGenAnimationData::EyesBlinkingUpdate(float a_timeDelta, bool a_blink)
 	{
 		auto& settings = Settings::Get();
 
@@ -170,10 +170,14 @@ namespace MfgFix
 				break;
 			}
 		}
-
 		blinkValue = std::clamp(blinkValue, 0.0f, 1.0f);
 
-		modifier2.timer = blinkValue;
+		if (a_blink) {
+			modifier3.values[Modifier::BlinkLeft] = blinkValue;
+			modifier3.values[Modifier::BlinkRight] = blinkValue;
+		} else {
+			modifier2.timer = blinkValue;
+		}
 	}
 
 	void BSFaceGenAnimationData::EyesMovementUpdate(float a_timeDelta)
@@ -267,11 +271,116 @@ namespace MfgFix
 		}
 	}
 
-	void BSFaceGenAnimationData::EyesDirectionUpdate(float)
-	{	
+	void BSFaceGenAnimationData::EyesDirectionUpdate(float a_timeDelta)
+	{
+		auto& settings = Settings::Get();
+
+		auto eyesHeadingMax = deg2rad(settings.eyesMovement.fTrackEyeXY);
+		auto eyesPitchMax = deg2rad(settings.eyesMovement.fTrackEyeZ);
+		auto eyesHeadingDeltaMax = settings.eyesMovement.fTrackSpeed * a_timeDelta;
+		auto eyesPitchDeltaMax = settings.eyesMovement.fTrackSpeed * a_timeDelta;
+
+		eyesHeading = std::clamp(eyesHeadingBase + eyesHeadingOffset, eyesHeading - eyesHeadingDeltaMax, eyesHeading + eyesHeadingDeltaMax);
+		eyesPitch = std::clamp(eyesPitchBase + eyesPitchOffset, eyesPitch - eyesPitchDeltaMax, eyesPitch + eyesPitchDeltaMax);
+		eyesHeading = std::clamp(eyesHeading, -eyesHeadingMax, eyesHeadingMax);
+		eyesPitch = std::clamp(eyesPitch, -eyesPitchMax, eyesPitchMax);
+
+		modifier3.values[Modifier::LookLeft] = eyesHeading < 0.0f ? (eyesHeadingMax != 0.0f ? -eyesHeading / eyesHeadingMax : 0.0f) : 0.0f;
+		modifier3.values[Modifier::LookRight] = eyesHeading > 0.0f ? (eyesHeadingMax != 0.0f ? eyesHeading / eyesHeadingMax : 0.0f) : 0.0f;
+		modifier3.values[Modifier::LookDown] = eyesPitch < 0.0f ? (eyesPitchMax != 0.0f ? -eyesPitch / eyesPitchMax : 0.0f) : 0.0f;
+		modifier3.values[Modifier::LookUp] = eyesPitch > 0.0f ? (eyesPitchMax != 0.0f ? eyesPitch / eyesPitchMax : 0.0f) : 0.0f;
 	}
 
-	bool BSFaceGenAnimationData::KeyframesUpdateHook(float a_timeDelta, bool)
+	void BSFaceGenAnimationData::RegularUpdate(float a_timeDelta)
+	{
+		RE::BSSpinLockGuard locker(lock);
+
+		// expressions
+		{
+			auto merge = [](Keyframe& a_src, Keyframe& a_dst) {
+				if (!a_src.IsZero()) {
+					a_dst.Copy(&a_src);
+				}
+			};
+
+			expression3.Reset();
+
+			expression1.TransitionUpdate(a_timeDelta, transitionTarget);
+
+			merge(expression1, expression3);
+			merge(expression2, expression3);
+		}
+
+		// modifiers
+		{
+			auto merge = [](Keyframe& a_src, Keyframe& a_dst) {
+				auto count = std::min(a_src.count, a_dst.count);
+				for (std::uint32_t i = 0; i < count; ++i) {
+					if (a_src.values[i] != 0.0f) {
+						a_dst.values[i] = a_src.values[i];
+					}
+				}
+				if (a_src.values[Modifier::LookDown] != 0.0f || a_src.values[Modifier::LookLeft] != 0.0f || a_src.values[Modifier::LookRight] != 0.0f || a_src.values[Modifier::LookUp] != 0.0f) {
+					a_dst.values[Modifier::LookDown] = a_src.values[Modifier::LookDown];
+					a_dst.values[Modifier::LookLeft] = a_src.values[Modifier::LookLeft];
+					a_dst.values[Modifier::LookRight] = a_src.values[Modifier::LookRight];
+					a_dst.values[Modifier::LookUp] = a_src.values[Modifier::LookUp];
+				}
+			};
+
+			modifier3.Reset();
+
+			DialogueModifiersUpdate(a_timeDelta);
+			EyesBlinkingUpdate(a_timeDelta, true);
+
+			merge(modifier1, modifier3);
+
+			if (!unk21A) {
+				EyesMovementUpdate(a_timeDelta);
+				EyesDirectionUpdate(a_timeDelta);
+			}
+
+			merge(modifier2, modifier3);
+		}
+
+		// phonemes
+		{
+			auto merge = [](Keyframe& a_src, Keyframe& a_dst) {
+				auto count = std::min(a_src.count, a_dst.count);
+				for (std::uint32_t i = 0; i < count; ++i) {
+					if (a_src.values[i] != 0.0f) {
+						a_dst.values[i] = a_src.values[i];
+					}
+				}
+			};
+
+			phoneme3.Reset();
+
+			DialoguePhonemesUpdate(a_timeDelta);
+
+			merge(phoneme1, phoneme3);
+			merge(phoneme2, phoneme3);
+		}
+
+		// custom
+		{
+			auto merge = [](BSFaceGenKeyframeMultiple& a_src, BSFaceGenKeyframeMultiple& a_dst) {
+				auto count = std::min(a_src.count, a_dst.count);
+				for (std::uint32_t i = 0; i < count; ++i) {
+					if (a_src.values[i] != 0.0f) {
+						a_dst.values[i] = a_src.values[i];
+					}
+				}
+			};
+
+			custom3.Reset();
+
+			merge(custom1, custom3);
+			merge(custom2, custom3);
+		}
+	}
+
+	void BSFaceGenAnimationData::SmoothUpdate(float a_timeDelta)
 	{
 		RE::BSSpinLockGuard locker(lock);
 
@@ -283,8 +392,7 @@ namespace MfgFix
 			for (std::uint32_t i = 0; i < count; ++i) {
 				if (i >= modifier.count || fabs(modifier.values[i]) < FLT_EPSILON && fabs(dialogue.values[i]) > FLT_EPSILON) {
 					result.values[i] = dialogue.values[i];
-				}
-				else if (fabs(result.values[i] - modifier.values[i]) < animationStep) {
+				} else if (fabs(result.values[i] - modifier.values[i]) < animationStep) {
 					result.values[i] = modifier.values[i];
 				} else {
 					result.values[i] = result.values[i] + animationStep * (modifier.values[i] > result.values[i] ? 1 : -1);
@@ -307,19 +415,18 @@ namespace MfgFix
 			auto eyesPitchMax = deg2rad(settings.eyesMovement.fTrackEyeZ);
 			auto eyesHeadingDeltaMax = settings.eyesMovement.fTrackSpeed * a_timeDelta;
 			auto eyesPitchDeltaMax = settings.eyesMovement.fTrackSpeed * a_timeDelta;
-			
+
 			DialogueModifiersUpdate(a_timeDelta);
 
 			if (modifier2.timer < (1.0f - FLT_EPSILON)) {
 				modifier3.values[Modifier::BlinkLeft] = (float)(1.0f + (modifier3.values[Modifier::BlinkLeft] - 1.0f) / (1.0 - modifier2.timer));
 				modifier3.values[Modifier::BlinkRight] = (float)(1.0f + (modifier3.values[Modifier::BlinkRight] - 1.0f) / (1.0 - modifier2.timer));
-			}
-			else {
+			} else {
 				modifier3.values[Modifier::BlinkLeft] = modifier2.values[Modifier::BlinkLeft] != 0 ? modifier2.values[Modifier::BlinkLeft] : modifier1.values[Modifier::BlinkLeft];
 				modifier3.values[Modifier::BlinkRight] = modifier2.values[Modifier::BlinkRight] != 0 ? modifier2.values[Modifier::BlinkRight] : modifier1.values[Modifier::BlinkRight];
 			}
 
-			EyesBlinkingUpdate(a_timeDelta);
+			EyesBlinkingUpdate(a_timeDelta, false);
 
 			if (!unk21A) {
 				modifier3.values[Modifier::LookLeft] += eyesHeading < 0.0f ? eyesHeading / eyesHeadingMax : 0.0f;
@@ -349,15 +456,13 @@ namespace MfgFix
 
 				if ((eyesHeading + modifierHeadingOffset) > eyesHeadingMax) {
 					eyesHeading = eyesHeadingMax - modifierHeadingOffset;
-				}
-				else if ((eyesHeading + modifierHeadingOffset) < -eyesHeadingMax) {
+				} else if ((eyesHeading + modifierHeadingOffset) < -eyesHeadingMax) {
 					eyesHeading = -eyesHeadingMax - modifierHeadingOffset;
 				}
 
 				if ((eyesPitch + modifierPitchOffset) > eyesPitchMax) {
 					eyesPitch = eyesHeadingMax - modifierPitchOffset;
-				}
-				else if ((eyesPitch + modifierPitchOffset) < -eyesPitchMax) {
+				} else if ((eyesPitch + modifierPitchOffset) < -eyesPitchMax) {
 					eyesPitch = -eyesHeadingMax - modifierPitchOffset;
 				}
 
@@ -366,11 +471,10 @@ namespace MfgFix
 
 				modifier3.values[Modifier::LookLeft] = currentHeading < 0.0f ? -currentHeading / eyesHeadingMax : 0.0f;
 				modifier3.values[Modifier::LookRight] = currentHeading > 0.0f ? currentHeading / eyesHeadingMax : 0.0f;
-				modifier3.values[Modifier::LookDown] = currentPitch < 0.0f ?-currentPitch / eyesPitchMax : 0.0f;
-				modifier3.values[Modifier::LookUp] = currentPitch > 0.0f ?currentPitch / eyesPitchMax : 0.0f;
+				modifier3.values[Modifier::LookDown] = currentPitch < 0.0f ? -currentPitch / eyesPitchMax : 0.0f;
+				modifier3.values[Modifier::LookUp] = currentPitch > 0.0f ? currentPitch / eyesPitchMax : 0.0f;
 			}
 		}
-
 
 		DialoguePhonemesUpdate(a_timeDelta);
 
@@ -378,9 +482,18 @@ namespace MfgFix
 		animMerge(phoneme1, phoneme2, phoneme3);
 		// custom
 		animMerge(custom1, custom2, custom3);
+	}
+
+	bool BSFaceGenAnimationData::KeyframesUpdateHook(float a_timeDelta, bool)
+	{
+		if (ActorManager::GetSpeed(this) > 0.f) {
+			SmoothUpdate(a_timeDelta);
+		} else {
+			RegularUpdate(a_timeDelta);
+		}
 
 		CheckAndReleaseDialogueData();
-
+		
 		unk217 = true;
 
 		return unk217;

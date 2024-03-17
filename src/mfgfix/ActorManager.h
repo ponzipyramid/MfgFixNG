@@ -2,7 +2,7 @@
 
 namespace MfgFix
 {
-	constexpr float DEFAULT_SPEED = 0.2f;
+	constexpr float DEFAULT_SPEED = 0.0f;
 
 	class ActorManager
 	{

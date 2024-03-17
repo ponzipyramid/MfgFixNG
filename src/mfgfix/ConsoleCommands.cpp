@@ -1,6 +1,7 @@
 #include "ConsoleCommands.h"
 #include "BSFaceGenAnimationData.h"
 #include "Offsets.h"
+#include "ActorManager.h"
 
 namespace MfgFix::ConsoleCommands
 {
@@ -19,6 +20,8 @@ namespace MfgFix::ConsoleCommands
 		if (!animData) {
 			return;
 		}
+
+		ActorManager::SetSpeed(a_ref->As<RE::Actor>(), 0.f);
 
 		RE::BSSpinLockGuard locker(animData->lock);
 

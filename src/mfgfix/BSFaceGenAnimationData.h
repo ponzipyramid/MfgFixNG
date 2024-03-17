@@ -107,9 +107,11 @@ namespace MfgFix
 		void			DialogueModifiersUpdate(float a_timeDelta);
 		void			DialoguePhonemesUpdate(float a_timeDelta);
 		void			CheckAndReleaseDialogueData();
-		void			EyesBlinkingUpdate(float a_timeDelta);
+		void			EyesBlinkingUpdate(float a_timeDelta, bool a_blink);
 		void			EyesMovementUpdate(float a_timeDelta);
 		void			EyesDirectionUpdate(float a_timeDelta);
+		void			RegularUpdate(float a_timeDelta);
+		void			SmoothUpdate(float a_timeDelta);
 		bool			KeyframesUpdateHook(float a_timeDelta, bool a_updateBlinking);
 
 		static void		Init();
