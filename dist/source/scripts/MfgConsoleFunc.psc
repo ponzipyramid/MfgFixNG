@@ -36,3 +36,6 @@ int function GetExpressionID(Actor act) global
 	return GetPhonemeModifier(act, 3, 0)
 endfunction
 
+bool function GetModifiedScript() global
+    return true
+endFunction
