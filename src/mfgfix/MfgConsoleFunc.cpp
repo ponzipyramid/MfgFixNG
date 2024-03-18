@@ -26,6 +26,7 @@ namespace MfgFix::MfgConsoleFunc
 			logger::error("PhonemeId out of range 0-15:{}", a_id);
 			return false;
 		}
+
 		animData->phoneme2.SetValue(a_id, std::clamp(a_value, 0, 200) / 100.0f);
 		return true;
 	}
@@ -110,7 +111,11 @@ namespace MfgFix::MfgConsoleFunc
 			}
 		case Mode::Phoneme:
 			{
-				return SetPhoneme(animData, a_id, a_value);
+				if (ActorManager::IsPhonemeBlocked(a_actor)) {
+					return false;
+				} else {
+					return SetPhoneme(animData, a_id, a_value);
+				}
 			}
 		case Mode::Modifier:
 			{
@@ -192,9 +197,12 @@ namespace MfgFix::MfgConsoleFunc
 				}
 
 				// Mouth
-				for (int p = 0; p <= 13; p++) {
-					SetPhoneme(animData, p, 0);
+				if (!ActorManager::IsPhonemeBlocked(a_actor)) {
+					for (int p = 0; p <= 13; p++) {
+						SetPhoneme(animData, p, 0);
+					}
 				}
+				
 				// Expressions
 				SetExpression(animData, GetActiveExpression(*animData), 0);
 				break;
@@ -202,8 +210,10 @@ namespace MfgFix::MfgConsoleFunc
 		case Mode::Phoneme:
 			{
 				// Mouth
-				for (int p = 0; p <= 13; p++) {
-					SetPhoneme(animData, p, 0);
+				if (!ActorManager::IsPhonemeBlocked(a_actor)) {
+					for (int p = 0; p <= 13; p++) {
+						SetPhoneme(animData, p, 0);
+					}
 				}
 				break;
 			}
@@ -265,12 +275,14 @@ namespace MfgFix::MfgConsoleFunc
 		}
 		
 		// Set Phoneme
-		while (p <= 15) {
-			if (!a_openMouth && GetPhoneme(*animData, p) != a_expression[i]) {
-				SetPhoneme(animData, p, static_cast<int>(a_expression[i] * 100.0 * phStrModifier));
+		if (!ActorManager::IsPhonemeBlocked(a_actor)) {
+			while (p <= 15) {
+				if (!a_openMouth && GetPhoneme(*animData, p) != a_expression[i]) {
+					SetPhoneme(animData, p, static_cast<int>(a_expression[i] * 100.0 * phStrModifier));
+				}
+				++i;
+				++p;
 			}
-			++i;
-			++p;
 		}
 		// Set Modifier
 		while (m <= 13) {
@@ -299,7 +311,15 @@ namespace MfgFix::MfgConsoleFunc
 		return nullptr;
 	}
 
+	void AddPhonemeBlockKwd(RE::StaticFunctionTag*, RE::BGSKeyword* a_kwd)
+	{
+		ActorManager::AddPhonemeBlockKwd(a_kwd);
+	}
 
+	void RemovePhonemeBlockKwd(RE::StaticFunctionTag*, RE::BGSKeyword* a_kwd)
+	{
+		ActorManager::RemovePhonemeBlockKwd(a_kwd);
+	}
 
 	void Register()
 	{
@@ -307,9 +327,13 @@ namespace MfgFix::MfgConsoleFunc
 			a_vm->RegisterFunction("SetPhonemeModifierSmooth", "MfgConsoleFuncExt", SetPhonemeModifierSmooth);
 			a_vm->RegisterFunction("SetPhonemeModifier", "MfgConsoleFunc", SetPhonemeModifier);
 			a_vm->RegisterFunction("GetPhonemeModifier", "MfgConsoleFunc", GetPhonemeModifier);
+	
 			a_vm->RegisterFunction("ResetMFGSmooth", "MfgConsoleFuncExt", ResetMFGSmooth);
 			a_vm->RegisterFunction("ApplyExpressionPreset", "MfgConsoleFuncExt", ApplyExpressionPreset);
 			a_vm->RegisterFunction("GetPlayerSpeechTarget", "MfgConsoleFuncExt", GetPlayerSpeechTarget);
+
+			a_vm->RegisterFunction("AddPhonemeBlockKwd", "MfgConsoleFuncExt", AddPhonemeBlockKwd);
+			a_vm->RegisterFunction("RemovePhonemeBlockKwd", "MfgConsoleFuncExt", RemovePhonemeBlockKwd);
 
 			return true;
 		});

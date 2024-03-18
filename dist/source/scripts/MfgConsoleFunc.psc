@@ -39,3 +39,7 @@ endfunction
 bool function GetModifiedScript() global
     return true
 endFunction
+
+; does not persist keyword blocklist
+function AddPhonemeBlockKeyword(Keyword akKwd) global native
+function RemovePhonemeBlockKeyword(Keyword akKwd) global native
