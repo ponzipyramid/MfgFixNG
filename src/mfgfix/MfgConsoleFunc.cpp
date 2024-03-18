@@ -23,7 +23,7 @@ namespace MfgFix::MfgConsoleFunc
 			return false;
 		}
 		if (a_id < 0 || a_id > 15) {
-			logger::error("PhonemeId out of range");
+			logger::error("PhonemeId out of range 0-15:{}", a_id);
 			return false;
 		}
 		animData->phoneme2.SetValue(a_id, std::clamp(a_value, 0, 200) / 100.0f);
@@ -42,7 +42,7 @@ namespace MfgFix::MfgConsoleFunc
 			return false;
 		}
 		if (a_id < 0 || a_id > 13) {
-			logger::error("ModifierId is out of range");
+			logger::error("ModifierId is out of range 0-13:{}", a_id);
 			return false;
 		}
 		animData->modifier2.SetValue(a_id, std::clamp(a_value, 0, 200) / 100.0f);
@@ -62,10 +62,13 @@ namespace MfgFix::MfgConsoleFunc
 			return false;
 		}
 		if (a_mood < 0 || a_mood > 16) {
-			logger::error("Mood is out of range");
+			logger::error("Mood is out of range 0-16:{}", a_mood);
 			return false;
 		}
+
+		animData->expressionOverride = false;
 		animData->SetExpressionOverride(a_mood, std::clamp(a_value, 0, 200) / 100.0f);
+		animData->expressionOverride = true;
 		return true;
 	}
 
@@ -229,10 +232,10 @@ namespace MfgFix::MfgConsoleFunc
 		}
 
 		if (a_expression.size() != 32) {
-			logger::error("Expression is of incorrect size - returning");
+			logger::error("Expression is of incorrect size - returning:{}", a_expression.size());
 			return false;
 		}
-
+		
 		auto animData = reinterpret_cast<BSFaceGenAnimationData*>(a_actor->GetFaceGenAnimationData());
 
 		if (!animData) {
@@ -260,6 +263,7 @@ namespace MfgFix::MfgConsoleFunc
 		if (!a_openMouth) {
 			SetExpression(animData, exprNum, exprStrResult);
 		}
+		
 		// Set Phoneme
 		while (p <= 15) {
 			if (!a_openMouth && GetPhoneme(*animData, p) != a_expression[i]) {
