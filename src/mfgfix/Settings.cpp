@@ -32,14 +32,17 @@ namespace MfgFix
 		CSimpleIniA ini;
 		auto path = GetIniPath();
 
-		if (ini.LoadFile(path.c_str()) >= 0) {
+		if (ini.LoadFile(path.c_str()) < 0) {
 			return;
 		}
+
+		transition.fDefaultSpeed = static_cast<float>(ini.GetDoubleValue("Transition", "fDefaultSpeed", transition.fDefaultSpeed));
 
 		eyesBlinking.fBlinkDownTime = static_cast<float>(ini.GetDoubleValue("EyesBlinking", "fBlinkDownTime", eyesBlinking.fBlinkDownTime));
 		eyesBlinking.fBlinkUpTime = static_cast<float>(ini.GetDoubleValue("EyesBlinking", "fBlinkUpTime", eyesBlinking.fBlinkUpTime));
 		eyesBlinking.fBlinkDelayMin = static_cast<float>(ini.GetDoubleValue("EyesBlinking", "fBlinkDelayMin", eyesBlinking.fBlinkDelayMin));
 		eyesBlinking.fBlinkDelayMax = static_cast<float>(ini.GetDoubleValue("EyesBlinking", "fBlinkDelayMax", eyesBlinking.fBlinkDelayMax));
+		
 		eyesMovement.fTrackSpeed = static_cast<float>(ini.GetDoubleValue("EyesMovement", "fTrackSpeed", eyesMovement.fTrackSpeed));
 		eyesMovement.fTrackEyeXY = static_cast<float>(ini.GetDoubleValue("EyesMovement", "fTrackEyeXY", eyesMovement.fTrackEyeXY));
 		eyesMovement.fTrackEyeZ = static_cast<float>(ini.GetDoubleValue("EyesMovement", "fTrackEyeZ", eyesMovement.fTrackEyeZ));
@@ -112,10 +115,13 @@ namespace MfgFix
 
 		ini.LoadFile(path.c_str());
 
+		ini.SetDoubleValue("Transition", "fDefaultSpeed", transition.fDefaultSpeed);
+
 		ini.SetDoubleValue("EyesBlinking", "fBlinkDownTime", eyesBlinking.fBlinkDownTime);
 		ini.SetDoubleValue("EyesBlinking", "fBlinkUpTime", eyesBlinking.fBlinkUpTime);
 		ini.SetDoubleValue("EyesBlinking", "fBlinkDelayMin", eyesBlinking.fBlinkDelayMin);
 		ini.SetDoubleValue("EyesBlinking", "fBlinkDelayMax", eyesBlinking.fBlinkDelayMax);
+		
 		ini.SetDoubleValue("EyesMovement", "fTrackSpeed", eyesMovement.fTrackSpeed);
 		ini.SetDoubleValue("EyesMovement", "fTrackEyeXY", eyesMovement.fTrackEyeXY);
 		ini.SetDoubleValue("EyesMovement", "fTrackEyeZ", eyesMovement.fTrackEyeZ);

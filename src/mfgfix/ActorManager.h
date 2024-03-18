@@ -1,9 +1,8 @@
 #pragma once
+#include "Settings.h"
 
 namespace MfgFix
 {
-	constexpr float DEFAULT_SPEED = 0.0f;
-
 	class ActorManager
 	{
 	public:
@@ -36,11 +35,12 @@ namespace MfgFix
 				}
 			}
 
-			return DEFAULT_SPEED;
+			return Settings::Get().transition.fDefaultSpeed;
 		}
 
 	private:
 		static inline std::unordered_map<RE::FormID, float> _speed;
 		static inline std::unordered_map<std::uintptr_t, RE::FormID> _mapping;
+		static inline float _defaultSpeed{ 0.f };
 	};
 }

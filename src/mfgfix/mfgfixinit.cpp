@@ -5,7 +5,7 @@
 #include "SettingsPapyrus.h"
 #include "MfgConsoleFunc.h"
 #include "Offsets.h"
-
+#include "ActorManager.h"
 
 namespace MfgFix
 {

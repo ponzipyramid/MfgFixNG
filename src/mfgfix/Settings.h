@@ -4,6 +4,11 @@ namespace MfgFix
 {
 	struct Settings
 	{
+		struct Transition
+		{
+			float fDefaultSpeed{ 0.0f };
+		};
+
 		struct EyesBlinking
 		{
 			float	fBlinkDownTime{ 0.04f };
@@ -84,6 +89,7 @@ namespace MfgFix
 		void	Read();
 		void	Write();
 
+		Transition		transition;
 		EyesBlinking	eyesBlinking;
 		EyesMovement	eyesMovement;
 	};
